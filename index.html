@@ -603,22 +603,22 @@ function clearLastUpload(){
 /* ═══════════════════════════════════════════════════════════
    SECURITY: fetch user permissions from user_access table
    ═══════════════════════════════════════════════════════════ */
-async function fetchUserTables(){
-  // 1. Try user_access table first (requires RLS setup)
+async function fetchUserTables(email=''){
+  // 1. Try user_access table (requires RLS setup in Supabase)
   try{
     const{data,error}=await sb.from('user_access').select('table_name');
     if(!error&&data&&data.length){
       const tables=data.map(r=>r.table_name).filter(t=>TABLE_LABEL[t]);
-      if(tables.length){console.log('[Auth] tables from DB:',tables);return tables;}
+      if(tables.length){console.log('[Auth] DB tables:',tables);return tables;}
     }
-    if(error)console.warn('[Auth] user_access error (fallback):',error.message);
-    else console.warn('[Auth] user_access empty (fallback)');
-  }catch(e){console.warn('[Auth] user_access exception:',e);}
-  // 2. Fallback: local ACCESS_MAP
-  const{data:{user}}=await sb.auth.getUser();
-  const email=user?.email||'';
+    console.warn('[Auth] user_access unavailable, using local fallback. Error:',error?.message||'empty');
+  }catch(e){console.warn('[Auth] user_access exception:',e.message);}
+  // 2. Fallback: local ACCESS_MAP (no extra async call needed)
+  if(!email){
+    try{const{data:{user}}=await sb.auth.getUser();email=user?.email||'';}catch(e){}
+  }
   const tables=(ACCESS_MAP[email]||[]).filter(t=>TABLE_LABEL[t]);
-  console.log('[Auth] tables from ACCESS_MAP fallback:',tables);
+  console.log('[Auth] fallback tables for',email,':',tables);
   return tables;
 }
 
@@ -644,9 +644,9 @@ async function checkExistingSession(){
 async function resumeSession(){
   if(!resumeSession_data)return;
   const email=resumeSession_data.user.email;
-  const tables=await fetchUserTables();
+  const tables=await fetchUserTables(email);
   if(!tables.length){
-    showLoginError('此帳號無可存取的機構，請聯絡管理員');
+    showLoginError('此帳號無可存取的機構，請聯絡管理員。Email: '+email);
     return;
   }
   showDashboard(email,tables);
@@ -675,10 +675,10 @@ async function doLogin(){
   btn.disabled=true;btn.textContent='登入中…';
   const{data,error}=await sb.auth.signInWithPassword({email,password:pass});
   if(error){showLoginError('登入失敗：'+error.message);btn.disabled=false;btn.textContent='登入';return;}
-  const tables=await fetchUserTables();
+  const tables=await fetchUserTables(email);
   if(!tables.length){
     await sb.auth.signOut({scope:'global'});
-    showLoginError('此帳號無可存取的機構，請聯絡管理員');
+    showLoginError('此帳號無可存取的機構，請聯絡管理員。Email: '+email);
     btn.disabled=false;btn.textContent='登入';return;
   }
   if(remember){localStorage.setItem('rm_email',email);localStorage.setItem('rm_pass',btoa(pass));}
