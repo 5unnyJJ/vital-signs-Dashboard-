@@ -977,15 +977,19 @@ async function loadMonthView(){
 /* ═══════════════════════════════════════════════════════════
    DAY STATS (AC-VAR-01)
    ═══════════════════════════════════════════════════════════ */
-function computeDayStats(minuteRows){
-  const hbVals=minuteRows.map(r=>r.heartbeat).filter(v=>v!==null&&!isNaN(parseFloat(v))).map(Number);
-  const brVals=minuteRows.map(r=>r.breath).filter(v=>v!==null&&!isNaN(parseFloat(v))).map(Number);
-  return{
-    maxHb:hbVals.length?Math.max(...hbVals):null,
-    minHb:hbVals.length?Math.min(...hbVals):null,
-    maxBr:brVals.length?Math.max(...brVals):null,
-    minBr:brVals.length?Math.min(...brVals):null,
-    stdHb:stdOf(hbVals),
+
+  function computeDayStats(minuteRows){
+  const hbVals = minuteRows.map(r=>r.heartbeat).filter(v=>v!==null&&!isNaN(parseFloat(v))).map(Number);
+  const brVals = minuteRows.map(r=>r.breath).filter(v=>v!==null&&!isNaN(parseFloat(v))).map(Number);
+  const tpVals = minuteRows.map(r=>r.temp).filter(v=>v!==null&&!isNaN(parseFloat(v))).map(Number);
+  return {
+    maxHb: hbVals.length ? Math.max(...hbVals) : null,
+    minHb: hbVals.length ? Math.min(...hbVals) : null,
+    maxBr: brVals.length ? Math.max(...brVals) : null,
+    minBr: brVals.length ? Math.min(...brVals) : null,
+    stdHb:   stdOf(hbVals),
+    stdBr:   stdOf(brVals),
+    stdTemp: stdOf(tpVals),
   };
 }
 
@@ -1034,9 +1038,12 @@ function renderPage(){
     const{maxHb,minHb,maxBr,minBr,stdHb}=dayStats;
     if(maxHb!==null)vitalsHtml+=`<div class="date-vital"><span>❤️</span><strong>${minHb}–${maxHb}</strong></div>`;
     vitalsHtml+=`<div class="date-vital"><span>🫁</span><strong>${maxBr!==null?minBr+'–'+maxBr:'—'}</strong></div>`;
-    // AC-VAR-01: std display
-    const stdStr=stdHb!==null?stdHb:'—';
-    vitalsHtml+=`<div class="date-vital std"><span>📊 波動</span><strong>${stdStr}</strong></div>`;
+
+        // AC-VAR-01: std display — 心跳 / 呼吸 / 體溫 各自標示
+    const hbStdStr = dayStats.stdHb !== null ? dayStats.stdHb : '—';
+    const brStdStr = dayStats.stdBr !== null ? dayStats.stdBr : '—';
+    const tpStdStr = dayStats.stdTemp !== null ? dayStats.stdTemp : '—';
+    vitalsHtml += `<div class="date-vital std"><span>📊</span><strong>❤️${hbStdStr} 🫁${brStdStr} 🌡${tpStdStr}</strong></div>`;
   }
 
   const dateCard=document.createElement('div');dateCard.className='date-card open';
