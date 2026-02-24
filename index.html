@@ -453,7 +453,16 @@ radial-gradient(ellipse at 80% 60%,rgba(93,145,128,.08) 0%,transparent 48%),var(
    ═══════════════════════════════════════════════════════════ */
 const SUPABASE_URL='https://lrrxswxvphoeyuvemvin.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxycnhzd3h2cGhvZXl1dmVtdmluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMzU1NjksImV4cCI6MjA4MzkxMTU2OX0.54qS-CTVL9XeIbNO83r8spsRrk8woyBz3u-HoRdFxHs';
-// AC-SEC-01: ACCESS_MAP removed. Permissions fetched from user_access table via RLS.
+// 本地備援權限表（當 user_access 資料表尚未建立或查詢失敗時使用）
+const ACCESS_MAP={
+  'dulancliniccloud@gmail.com':['DC_data_base'],
+  'ttricloudtest001@gmail.com':['CY_data_base','YK_data_base'],
+  'kingpig4628@gmail.com':['DC_data_base','CY_data_base','YK_data_base'],
+  'zywu.1487@gmail.com':['DC_data_base','CY_data_base','YK_data_base'],
+  'ttrismartextilegpt@gmail.com':['DC_data_base','CY_data_base','YK_data_base'],
+  'ttrismartextilegpt02@gmail.com':['DC_data_base','CY_data_base','YK_data_base'],
+  'ttrismartextilegpt03@gmail.com':['DC_data_base','CY_data_base','YK_data_base'],
+};
 const TABLE_LABEL={'DC_data_base':'都蘭診所','CY_data_base':'嘉義醫院','YK_data_base':'員郭醫院'};
 
 // AC-ACTION-01: action uses mode (眾數), not avg
@@ -595,9 +604,22 @@ function clearLastUpload(){
    SECURITY: fetch user permissions from user_access table
    ═══════════════════════════════════════════════════════════ */
 async function fetchUserTables(){
-  const{data,error}=await sb.from('user_access').select('table_name');
-  if(error||!data||!data.length)return[];
-  return data.map(r=>r.table_name).filter(t=>TABLE_LABEL[t]);
+  // 1. Try user_access table first (requires RLS setup)
+  try{
+    const{data,error}=await sb.from('user_access').select('table_name');
+    if(!error&&data&&data.length){
+      const tables=data.map(r=>r.table_name).filter(t=>TABLE_LABEL[t]);
+      if(tables.length){console.log('[Auth] tables from DB:',tables);return tables;}
+    }
+    if(error)console.warn('[Auth] user_access error (fallback):',error.message);
+    else console.warn('[Auth] user_access empty (fallback)');
+  }catch(e){console.warn('[Auth] user_access exception:',e);}
+  // 2. Fallback: local ACCESS_MAP
+  const{data:{user}}=await sb.auth.getUser();
+  const email=user?.email||'';
+  const tables=(ACCESS_MAP[email]||[]).filter(t=>TABLE_LABEL[t]);
+  console.log('[Auth] tables from ACCESS_MAP fallback:',tables);
+  return tables;
 }
 
 /* ═══════════════════════════════════════════════════════════
