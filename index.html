@@ -964,7 +964,7 @@ async function loadMonthView(){
       aHb!==null?`<div class="day-stat"><div class="day-stat-label">❤️ 心跳 avg</div><div class="day-stat-val${hbLvl!=='neutral'?' is-'+hbLvl:''}">${aHb}</div></div>`:'',
       `<div class="day-stat"><div class="day-stat-label">🫁 呼吸 avg</div><div class="day-stat-val">${aBr!==null?aBr:'—'}</div></div>`,
       aSbp!==null?`<div class="day-stat"><div class="day-stat-label">🩺 收縮壓 avg</div><div class="day-stat-val${sbpLvl!=='neutral'?' is-'+sbpLvl:''}">${aSbp}</div></div>`:'',
-      aTemp!==null?`<div class="day-stat"><div class="day-stat-label">🌡️ 體溫 avg</div><div class="day-stat-val">${aTemp}°C</div></div>`:'',
+      aTemp!==null?`<div class="day-stat"><div class="day-stat-label"> 🌡 體溫 avg</div><div class="day-stat-val">${aTemp}°C</div></div>`:'',
     ].join('');
     card.innerHTML=`<div class="day-card-date">📅 ${ds}</div><div class="day-card-stats">${statsHtml}</div><div class="day-card-footer"><span>${rows.length.toLocaleString()} 筆</span><span style="color:var(--mint-mid);font-weight:600;">查看詳細 →</span></div>`;
     card.onclick=()=>{currentDate=ds;setView('day');};
@@ -1055,7 +1055,7 @@ function renderPage(){
       `<div class="stat-chip"><span>🫁</span><span class="stat-val">${aBr!==null?aBr:'—'}</span></div>`,
       aSbp!==null?`<div class="stat-chip"><span>🩺</span><span class="stat-val${sbpLvl!=='neutral'?' is-'+sbpLvl:''}">${aSbp}</span></div>`:'',
       aDbp!==null?`<div class="stat-chip"><span>💙</span><span class="stat-val">${aDbp}</span></div>`:'',
-      aTemp!==null?`<div class="stat-chip"><span>🌡️</span><span class="stat-val">${aTemp}°C</span></div>`:'',
+      aTemp!==null?`<div class="stat-chip"><span>🌡</span><span class="stat-val">${aTemp}°C</span></div>`:'',
     ].join('');
     const spk=sparkline(rows.map(r=>r.heartbeat),'#7aaa96');
     let tbodyHtml='';
@@ -1108,7 +1108,7 @@ async function silentRefresh(){
   countEl.style.visibility='visible';
   countEl.innerHTML=`原始 <strong>${rawRows.length.toLocaleString()}</strong> 筆 → 聚合 <strong>${minuteRows.length.toLocaleString()}</strong> 分鐘`;
 }
-
+ 
 /* ═══════════════════════════════════════════════════════════
    INIT — AC-LOGIN-01: never auto-showDashboard
    ═══════════════════════════════════════════════════════════ */
