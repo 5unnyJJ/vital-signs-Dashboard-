@@ -925,7 +925,7 @@ async function loadDayView(){
   totalPages=Math.ceil(hourKeys.length/HOURS_PER_PAGE);
   if(currentPage>totalPages)currentPage=totalPages;
   countEl.style.visibility='visible';
-  countEl.innerHTML=`原始 <strong>${rawRows.length.toLocaleString()}</strong> 筆 → 聚合 <strong>${minuteRows.length.toLocaleString()}</strong> 分鐘`;
+  countEl.innerHTML=`原始 <strong>${rawRows.length.toLocaleString()}</strong> 筆 → 合併 <strong>${minuteRows.length.toLocaleString()}</strong> 分鐘`;
   renderPage();
   renderTrendPanel();
 }
@@ -982,14 +982,15 @@ async function loadMonthView(){
   const hbVals = minuteRows.map(r=>r.heartbeat).filter(v=>v!==null&&!isNaN(parseFloat(v))).map(Number);
   const brVals = minuteRows.map(r=>r.breath).filter(v=>v!==null&&!isNaN(parseFloat(v))).map(Number);
   const tpVals = minuteRows.map(r=>r.temp).filter(v=>v!==null&&!isNaN(parseFloat(v))).map(Number);
+  const avgOf = arr => arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length*10)/10 : null;
   return {
-    maxHb: hbVals.length ? Math.max(...hbVals) : null,
-    minHb: hbVals.length ? Math.min(...hbVals) : null,
-    maxBr: brVals.length ? Math.max(...brVals) : null,
-    minBr: brVals.length ? Math.min(...brVals) : null,
-    stdHb:   stdOf(hbVals),
-    stdBr:   stdOf(brVals),
-    stdTemp: stdOf(tpVals),
+    maxHb:   hbVals.length ? Math.max(...hbVals) : null,
+    minHb:   hbVals.length ? Math.min(...hbVals) : null,
+    maxBr:   brVals.length ? Math.max(...brVals) : null,
+    minBr:   brVals.length ? Math.min(...brVals) : null,
+    avgHb:   avgOf(hbVals),   stdHb:   stdOf(hbVals),
+    avgBr:   avgOf(brVals),   stdBr:   stdOf(brVals),
+    avgTemp: avgOf(tpVals),   stdTemp: stdOf(tpVals),
   };
 }
 
@@ -1032,18 +1033,15 @@ function renderPage(){
   let theadHtml='<tr>';AGG_COLS.forEach(c=>{theadHtml+=`<th>${c.label}</th>`;});theadHtml+='</tr>';
   const totalMins=hourKeys.reduce((s,hk)=>s+groupedCache[hk].length,0);
 
-  // Date vitals: max/min hb, max/min br, std hb
+
+  // Date vitals: max/min + avg±std
   let vitalsHtml='';
   if(dayStats){
-    const{maxHb,minHb,maxBr,minBr,stdHb}=dayStats;
+    const{maxHb,minHb,maxBr,minBr,avgHb,stdHb,avgBr,stdBr,avgTemp,stdTemp}=dayStats;
+    const fmt=(avg,std)=>avg!==null?`${avg} <span style="opacity:.55;font-weight:400">±${std??'—'}</span>`:'—';
     if(maxHb!==null)vitalsHtml+=`<div class="date-vital"><span>❤️</span><strong>${minHb}–${maxHb}</strong></div>`;
     vitalsHtml+=`<div class="date-vital"><span>🫁</span><strong>${maxBr!==null?minBr+'–'+maxBr:'—'}</strong></div>`;
-
-        // AC-VAR-01: std display — 心跳 / 呼吸 / 體溫 各自標示
-    const hbStdStr = dayStats.stdHb !== null ? dayStats.stdHb : '—';
-    const brStdStr = dayStats.stdBr !== null ? dayStats.stdBr : '—';
-    const tpStdStr = dayStats.stdTemp !== null ? dayStats.stdTemp : '—';
-    vitalsHtml += `<div class="date-vital std"><span>📊</span><strong>❤️${hbStdStr} 🫁${brStdStr} 🌡${tpStdStr}</strong></div>`;
+    vitalsHtml+=`<div class="date-vital std"><span>📊 波動</span><strong>❤️ ${fmt(avgHb,stdHb)} &nbsp;🫁 ${fmt(avgBr,stdBr)} &nbsp;🌡 ${fmt(avgTemp,stdTemp)}</strong></div>`;
   }
 
   const dateCard=document.createElement('div');dateCard.className='date-card open';
