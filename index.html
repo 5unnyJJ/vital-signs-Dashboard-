@@ -385,7 +385,7 @@ let sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
 const ACCESS_MAP={'dulancliniccloud@gmail.com':['DC_data_base'],'ttricloudtest001@gmail.com':['CY_data_base','YK_data_base'],'kingpig4628@gmail.com':['DC_data_base','CY_data_base','YK_data_base'],'zywu.1487@gmail.com':['DC_data_base','CY_data_base','YK_data_base'],'ttrismartextilegpt@gmail.com':['DC_data_base','CY_data_base','YK_data_base'],'ttrismartextilegpt02@gmail.com':['DC_data_base','CY_data_base','YK_data_base'],'ttrismartextilegpt03@gmail.com':['DC_data_base','CY_data_base','YK_data_base']};
 const TABLE_LABEL={'DC_data_base':'都蘭診所','CY_data_base':'嘉義醫院','YK_data_base':'員郭醫院'};
-const AGG_COLS=[{key:'time',label:'分鐘',badge:false},{key:'count',label:'筆數',badge:false},{key:'heartbeat',label:'心跳 avg',badge:true},{key:'temp',label:'體溫 avg',badge:true},{key:'breath',label:'呼吸 avg',badge:false},{key:'sbp',label:'收縮壓 avg',badge:true},{key:'dbp',label:'舒張壓 avg',badge:true},{key:'pulse',label:'脈搏 avg',badge:false},{key:'step',label:'步數 avg',badge:false},{key:'calorie',label:'卡路里 avg',badge:false}];
+const AGG_COLS=[{key:'time',label:'分鐘',badge:false},{key:'count',label:'筆數',badge:false},{key:'heartbeat',label:'心跳 avg',badge:true},{key:'temp',label:'體溫 avg',badge:true},{key:'breath',label:'呼吸 avg',badge:false},{key:'sbp',label:'收縮壓 avg',badge:true},{key:'dbp',label:'舒張壓 avg',badge:true},{key:'pulse',label:'脈搏 avg',badge:false},{key:'step',label:'步數 avg',badge:false},{key: 'action',label:'動作 avg',badge:false}];
 const HOURS_PER_PAGE=6;
 
 /* ── STATE ── */
