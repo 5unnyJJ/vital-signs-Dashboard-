@@ -68,6 +68,9 @@ radial-gradient(ellipse at 80% 60%,rgba(93,145,128,.08) 0%,transparent 48%),var(
 .btn-account{display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--text-mid);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .18s;}
 .btn-account:hover{border-color:var(--mint);color:var(--mint-dark);background:var(--mint-xlight);}
 .btn-account.has-filter{border-color:var(--mint);color:var(--mint-dark);background:var(--mint-xlight);}
+.btn-fontsize{display:flex;align-items:center;gap:5px;padding:7px 13px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--text-mid);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .18s;letter-spacing:-.2px;}
+.btn-fontsize:hover{border-color:var(--mint);color:var(--mint-dark);background:var(--mint-xlight);}
+.btn-fontsize.active{border-color:var(--mint);color:var(--mint-dark);background:var(--mint-xlight);}
 
 /* ── ACCOUNT SIDEBAR ── */
 .acct-overlay{display:none;position:fixed;inset:0;z-index:400;}
@@ -380,6 +383,7 @@ radial-gradient(ellipse at 80% 60%,rgba(93,145,128,.08) 0%,transparent 48%),var(
     <div class="topbar-brand">🌿 健康資料看板</div>
     <div class="topbar-right">
       <div class="rt-badge" id="rt-badge"><span class="rt-dot" id="rt-dot"></span><span id="rt-label">離線</span></div>
+      <button class="btn-fontsize" id="btn-fontsize" onclick="cycleFontSize()" title="調整字體大小">A 標準</button>
       <button class="btn-account" id="btn-account" onclick="openAccountSidebar()">👤 帳戶</button>
       <div class="user-chip"><div class="user-avatar" id="user-avatar">?</div><span id="user-email"></span></div>
       <button class="btn-logout" onclick="doLogout()">登出</button>
@@ -469,8 +473,8 @@ const TABLE_LABEL={'DC_data_base':'都蘭診所','CY_data_base':'嘉義醫院','
 const AGG_COLS=[
   {key:'time',label:'分鐘',badge:false},
   {key:'count',label:'筆數',badge:false},
-  {key:'heartbeat',label:'心跳 avg',badge:true},
   {key:'temp',label:'體溫 avg',badge:true},
+  {key:'heartbeat',label:'心跳 avg',badge:true},
   {key:'breath',label:'呼吸 avg',badge:false},
   {key:'sbp',label:'收縮壓 avg',badge:true},
   {key:'dbp',label:'舒張壓 avg',badge:true},
@@ -709,9 +713,26 @@ async function doLogout(){
 /* ═══════════════════════════════════════════════════════════
    DASHBOARD INIT
    ═══════════════════════════════════════════════════════════ */
+/* ── FONT SIZE ── */
+const FS_LEVELS=[
+  {label:'A 標準',scale:1},
+  {label:'A＋ 大',scale:1.15},
+  {label:'A＋＋ 最大',scale:1.3}
+];
+let fsIdx=parseInt(localStorage.getItem('vd_fsIdx')||'0');
+function applyFontSize(){
+  const f=FS_LEVELS[fsIdx];
+  document.querySelector('.main').style.zoom=f.scale;
+  const btn=document.getElementById('btn-fontsize');
+  if(btn){btn.textContent=f.label;btn.classList.toggle('active',fsIdx>0);}
+  localStorage.setItem('vd_fsIdx',fsIdx);
+}
+function cycleFontSize(){fsIdx=(fsIdx+1)%FS_LEVELS.length;applyFontSize();}
+
 function showDashboard(email,tables){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('dashboard').style.display='block';
+  applyFontSize();
   document.getElementById('user-email').textContent=email;
   document.getElementById('user-avatar').textContent=email[0].toUpperCase();
   const tabsEl=document.getElementById('tabs');tabsEl.innerHTML='';
