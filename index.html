@@ -489,7 +489,7 @@ const TABLE_LABEL={'DC_data_base':'都蘭診所','CY_data_base':'嘉義醫院','
 
 // AC-ACTION-01: action uses mode (眾數), not avg
 const AGG_COLS=[
-  {key:'time',label:'分鐘',badge:false},
+  {key:'time',label:'時間',badge:false},
   {key:'count',label:'筆數',badge:false},
   {key:'temp',label:'體溫 avg',badge:true},
   {key:'heartbeat',label:'心跳 avg',badge:true},
@@ -1124,7 +1124,7 @@ function renderPage(){
     const fmt=(avg,std)=>avg!==null?`${avg} <span style="opacity:.55;font-weight:400">±${std??'—'}</span>`:'—';
     if(maxHb!==null)vitalsHtml+=`<div class="date-vital"><span>❤️</span><strong>${minHb}–${maxHb}</strong></div>`;
     vitalsHtml+=`<div class="date-vital"><span>🫁</span><strong>${maxBr!==null?minBr+'–'+maxBr:'—'}</strong></div>`;
-    vitalsHtml+=`<div class="date-vital std"><span>📊 波動</span><strong>❤️ ${fmt(avgHb,stdHb)} &nbsp;🫁 ${fmt(avgBr,stdBr)} &nbsp;🌡 ${fmt(avgTemp,stdTemp)}</strong></div>`;
+    vitalsHtml+=`<div class="date-vital std"><span>📊 </span><strong>❤️ ${fmt(avgHb,stdHb)} &nbsp;🫁 ${fmt(avgBr,stdBr)} &nbsp;🌡 ${fmt(avgTemp,stdTemp)}</strong></div>`;
   }
 
   const dateCard=document.createElement('div');dateCard.className='date-card open';
